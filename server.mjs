@@ -1,8 +1,9 @@
 import express from "express";
 import morgan from "morgan";
-import cors from "cors"
+import cors from "cors";
+import mongoose from "mongoose"
 
-const port = process.env.PORT || 3001;
+const port = process.env.PORT || 3000;
 const app = express();
 
 mongoose.connect('mongodb+srv://admin:admin@cluster0.m6qku.mongodb.net/myFirstDatabase?retryWrites=true&w=majority');
