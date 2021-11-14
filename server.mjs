@@ -1,17 +1,20 @@
 import express from "express";
 import morgan from "morgan";
-import cors from "cors";
+import cors from "cors"
 import mongoose from "mongoose"
 
-const port = process.env.PORT || 3000;
+// mongoose.connect('mongodb+srv://farrukha303:4515750@cluster0.wcc2p.mongodb.net/expressCrud?retryWrites=true&w=majority')
+mongoose.connect('mongodb+srv://Anas123:anas123@cluster0.m6qku.mongodb.net/Anas123?retryWrites=true&w=majority')
+const USER = mongoose.model('Users', {
+    name: String,
+    email: String,
+    address: String,
+})
+
+const port = process.env.PORT || 3001;
 const app = express();
 
-mongoose.connect('mongodb+srv://admin:admin@cluster0.m6qku.mongodb.net/myFirstDatabase?retryWrites=true&w=majority');
-const User = mongoose.model('User', {
-  name: String,
-  email: String,
-  address: String
-});
+const user = [];
 
 app.use(express.json());
 app.use(morgan('short'));
@@ -20,90 +23,80 @@ app.use(cors({
     origin: '*'
 }));
 
-app.use((req, res, next) => {
-    console.log("a request came", req.body);
-    next()
-  })
-  
-  app.get('/users', (req, res) => {
-  
-    User.find({}, (err, users) => {
-      if (!err) {
-        res.send(users)
-      } else {
-        res.status(500).send("error happened")
-      }
+app.get('/', (req, res) => {
+    res.send("Server is working")
+})
+
+// get all user
+app.get('/users', (req, res) => {
+    USER.find({}, (err, users) => {
+        if (!err) {
+            res.send(users)
+        } else {
+            res.status(500).send("error happened")
+        }
     })
-  
-  
-  })
-  app.get('/user/:id', (req, res) => {
-  
-    User.findOne({ _id: req.params.id }, (err, user) => {
-      if (!err) {
-        res.send(user)
-      } else {
-        res.status(500).send("error happened")
-      }
-    })
-  
-  })
-  app.post('/user', (req, res) => {
-  
+})
+
+// add user
+app.post('/user', (req, res) => {
     if (!req.body.name || !req.body.email || !req.body.address) {
-      res.status(400).send("invalid data");
-    } else {
-      const newUser = new User({
-        name: req.body.name,
-        email: req.body.email,
-        address: req.body.address
-      });
-      newUser.save().then(() => {
-        console.log('user created success')
-        res.send("users created");
-      });
+        res.status(400).send('invalid data');
     }
-  })
-  app.put('/user/:id', (req, res) => {
+    else {
+         // user.push({
+        //     name: req.body.name,
+        //     email: req.body.email,
+        //     address: req.body.address
+        // })
+        const newUser = new USER({
+            name: req.body.name,
+            email: req.body.email,
+            address: req.body.address
+        });
+
+        newUser.save().then(() => {
+            console.log('user created success')
+            res.json({response: 'User Created'});
+        });
+       
+    }
+})
+
+// update user
+app.put('/user/:id', (req, res) => {
+    
     let updateObj = {}
-  
+
     if (req.body.name) {
-      updateObj.name = req.body.name
+        updateObj.name = req.body.name;
     }
     if (req.body.email) {
-      updateObj.email = req.body.email
+        updateObj.email = req.body.email;
     }
     if (req.body.address) {
-      updateObj.address = req.body.address
+        updateObj.address = req.body.address;
     }
-  
-    User.findByIdAndUpdate(req.params.id, updateObj, { new: true },
-      (err, data) => {
-        if (!err) {
-          res.send(data)
-        } else {
-          res.status(500).send("error happened")
-        }
-      })
-  })
-  app.delete('/user/:id', (req, res) => {
-  
-    User.findByIdAndRemove(req.params.id, (err, data) => {
-      if (!err) {
-        res.send("user deleted")
-      } else {
-        res.status(500).send("error happened")
-      }
+
+    USER.findByIdAndUpdate(req.params.id, updateObj, { new: true },
+        (err, data) => {
+            if (!err) {
+                res.send(data)
+            } else {
+                res.status(500).send("error happened")
+            }
     })
-  })
-  
-  app.get('/home', (req, res) => {
-    res.send('here is your home')
-  })
-  app.get('/', (req, res) => {
-    res.send('Hi I am a hello world Server program')
-  })
-  
-  app.listen(port, () => {
-    console.log(`Example app listening at http://localhost:${port}`)
-  })
+
+})
+
+// delete user
+app.delete('/user/:id', (req, res) => {
+    USER.findByIdAndRemove(req.params.id, (err, data) => {
+        if (!err) {
+            res.send({response: "user deleted"})
+        } else {
+            res.status(500).send("error happened")
+        }
+    })
+})
+app.listen(port);
